@@ -1,10 +1,23 @@
 import  numpy as np
-import matplotlib.image as plt
+import matplotlib.image as mpimg
 
 class Image:
     file = ''
-    data = np.zeros(shape=(0, 0, 3))
+
+    # Main data is where modifications are made, and the version before the modification is stored in the secondary_data
+    main_data = np.zeros(shape=(0, 0, 3))
+
+    # Secondary data should work as a CTRL+Z
+    secondary_data = np.zeros(shape=(0, 0, 3))
 
     def __init__(self, path):
         self.file = path
-        data = plt.imread(self.file)
+        self.main_data = mpimg.imread(path)
+
+    def store_secondary(self):
+        self.secondary_data = self.main_data
+
+    # Should receive tuples to identify the coordinates to crop the image
+    def crop (self, start, end):
+        self.store_secondary()
+        self.main_data = self.main_data[start[0]:end[0], start[1]:end[1]]
