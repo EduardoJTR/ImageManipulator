@@ -1,5 +1,6 @@
 import  numpy as np
 import matplotlib.image as mpimg
+import math
 
 class Image:
     file = ''
@@ -10,9 +11,15 @@ class Image:
     # Secondary data should work as a CTRL+Z
     secondary_data = np.zeros(shape=(0, 0, 3))
 
+    # For easier access
+    x_size = 0
+    y_size = 0
+
     def __init__(self, path):
         self.file = path
         self.main_data = mpimg.imread(path)
+        self.x_size = self.main_data.shape[1]
+        self.y_size = self.main_data.shape[0]
 
     def store_secondary(self):
         self.secondary_data = self.main_data
@@ -35,6 +42,19 @@ class Image:
     def rotate(self, angle):
         pass
 
-    # Should receive a tuple of the new dimensions
+    # Should receive a tuple of the new dimensions -- OBS: X first, Y second
     def resize(self, new_size):
-        pass
+        self.secondary_data = self.main_data
+
+        x_factor = self.x_size / new_size[0]
+        y_factor = self.y_size / new_size[1]
+
+        y_coords = np.arange(new_size[1]) * y_factor
+        x_coords = np.arange(new_size[0]) * x_factor
+
+        y_indices = np.floor(y_coords).astype(int)
+        x_indices = np.floor(x_coords).astype(int)
+
+        resized_data = self.main_data[y_indices[:, None], x_indices[None, :], :]
+
+        self.main_data = resized_data
