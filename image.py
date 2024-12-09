@@ -40,7 +40,52 @@ class Image:
 
     # Should receive the angle to rotate the image
     def rotate(self, angle):
-        pass
+        # Separates the coordinates of each pixel
+        coords = np.zeros((self.y_size, self.x_size, 2))
+
+        # Kind of confusing, this is separating the x and y of each pixels in pairs, in an array with shape:
+        # height, width, 2
+        coords[:,:,1] = np.tile(np.arange(self.main_data.shape[1]), self.main_data.shape[0]).reshape((
+            self.y_size, self.x_size
+        ))
+
+        coords[:, :, 0] = np.repeat(np.arange(self.main_data.shape[0]), self.main_data.shape[1], axis=0).reshape((
+            self.y_size, self.x_size
+        ))
+
+        # Transforms to the origin [0, 0], putting the image at the center
+        coords[:,:,0] = coords[:,:,0] - (self.y_size / 2)
+        coords[:,:,1] = coords[:,:,1] - (self.x_size / 2)
+
+        rotated_coords = np.zeros((self.y_size, self.x_size, 2))
+
+        # Applies the rotation matrix
+        rotated_coords[:,:,0] = coords[:,:,1] * math.sin(math.radians(angle)) + coords[:,:,0] * math.cos(math.radians(angle))
+        rotated_coords[:,:,1] = coords[:,:,1] * math.cos(math.radians(angle)) - coords[:,:,0] * math.sin(math.radians(angle))
+
+        top_y_bound = rotated_coords[:,:,0].min()
+        left_x_bound = rotated_coords[:, :, 1].min()
+
+        # Transforms so the image has no negative coordinates
+        rotated_coords[:,:,0] = rotated_coords[:,:,0] + -top_y_bound
+        rotated_coords[:,:,1] = rotated_coords[:,:,1] + -left_x_bound
+
+        bottom_y_bound = math.ceil(rotated_coords[:,:,0].max())
+        right_x_bound = math.ceil(rotated_coords[:,:,1].max())
+
+        # Gets the new size of the rotated image
+        resized_data = np.zeros((bottom_y_bound, right_x_bound, 3))
+
+        rows = rotated_coords[:,:,1].astype(int)
+        cols = rotated_coords[:,:,0].astype(int)
+
+        rows = np.clip(rows, 0, right_x_bound - 1)
+        cols = np.clip(cols, 0, bottom_y_bound - 1)
+
+        resized_data[cols, rows,:] = self.main_data[:,:,:]
+
+        self.main_data = resized_data
+
 
     # Should receive a tuple of the new dimensions -- OBS: X first, Y second
     def resize(self, new_size):
