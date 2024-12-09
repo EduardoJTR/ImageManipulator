@@ -58,3 +58,12 @@ class Image:
         resized_data = self.main_data[y_indices[:, None], x_indices[None, :], :]
 
         self.main_data = resized_data
+
+    def grey(self):
+        self.secondary_data = self.main_data
+
+        # Sum all the colors, then divide by the number of color channels
+        colors_sum = np.sum(self.main_data, axis=2)
+        colors_sum = colors_sum / 3
+
+        self.main_data[:,:,:] = np.stack((colors_sum, colors_sum, colors_sum), axis=2)
