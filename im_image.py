@@ -16,8 +16,16 @@ class IM_Image:
     y_size = 0
 
     def __init__(self, path):
+        if path != '':
+            self.file = path
+            self.main_data = np.array(Image.open(self.file))
+            self.x_size = self.main_data.shape[1]
+            self.y_size = self.main_data.shape[0]
+
+
+    def open(self, path):
         self.file = path
-        self.main_data = np.array(Image.open(path))
+        self.main_data = np.array(Image.open(self.file))
         self.x_size = self.main_data.shape[1]
         self.y_size = self.main_data.shape[0]
 
