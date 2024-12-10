@@ -1,8 +1,8 @@
+from PIL import Image
 import  numpy as np
-import matplotlib.image as mpimg
 import math
 
-class Image:
+class IM_Image:
     file = ''
 
     # Main data is where modifications are made, and the version before the modification is stored in the secondary_data
@@ -17,12 +17,13 @@ class Image:
 
     def __init__(self, path):
         self.file = path
-        self.main_data = mpimg.imread(path)
+        self.main_data = np.array(Image.open(path))
         self.x_size = self.main_data.shape[1]
         self.y_size = self.main_data.shape[0]
 
 
     def update_main(self, new_main):
+        new_main = new_main.astype('uint8')
         self.main_data = new_main
         self.x_size = self.main_data.shape[1]
         self.y_size = self.main_data.shape[0]
@@ -31,10 +32,12 @@ class Image:
     def store_secondary(self):
         self.secondary_data = self.main_data
 
+
     # Should receive tuples to identify the coordinates to crop the image
     def crop (self, start, end):
         self.store_secondary()
         self.update_main(self.main_data[start[0]:end[0], start[1]:end[1]])
+
 
     # V for vertical and H for horizontal
     def flip(self, direction):
@@ -114,6 +117,7 @@ class Image:
 
         self.update_main(resized_data)
 
+
     def grey(self):
         self.store_secondary()
 
@@ -122,3 +126,12 @@ class Image:
         colors_sum = colors_sum / 3
 
         self.update_main(np.stack((colors_sum, colors_sum, colors_sum), axis=2))
+
+
+    def reset_main_data(self):
+        self.main_data = self.secondary_data
+
+
+    def show(self):
+        pil_img = Image.fromarray(self.main_data)
+        pil_img.show()
