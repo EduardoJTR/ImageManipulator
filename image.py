@@ -21,25 +21,35 @@ class Image:
         self.x_size = self.main_data.shape[1]
         self.y_size = self.main_data.shape[0]
 
+
+    def update_main(self, new_main):
+        self.main_data = new_main
+        self.x_size = self.main_data.shape[1]
+        self.y_size = self.main_data.shape[0]
+
+
     def store_secondary(self):
         self.secondary_data = self.main_data
 
     # Should receive tuples to identify the coordinates to crop the image
     def crop (self, start, end):
         self.store_secondary()
-        self.main_data = self.main_data[start[0]:end[0], start[1]:end[1]]
+        self.update_main(self.main_data[start[0]:end[0], start[1]:end[1]])
 
     # V for vertical and H for horizontal
     def flip(self, direction):
-        self.secondary_data = self.main_data
+        self.store_secondary()
 
         if direction.lower() == 'v':
-            self.main_data = np.flip(self.main_data, 0)
+            self.update_main(np.flip(self.main_data, 0))
         elif direction.lower() == 'h':
-            self.main_data = np.flip(self.main_data, 1)
+            self.update_main(np.flip(self.main_data, 1))
+
 
     # Should receive the angle to rotate the image
     def rotate(self, angle):
+        self.store_secondary()
+
         # Separates the coordinates of each pixel
         coords = np.zeros((self.y_size, self.x_size, 2))
 
@@ -84,12 +94,12 @@ class Image:
 
         resized_data[cols, rows,:] = self.main_data[:,:,:]
 
-        self.main_data = resized_data
+        self.update_main(resized_data)
 
 
     # Should receive a tuple of the new dimensions -- OBS: X first, Y second
     def resize(self, new_size):
-        self.secondary_data = self.main_data
+        self.store_secondary()
 
         x_factor = self.x_size / new_size[0]
         y_factor = self.y_size / new_size[1]
@@ -102,13 +112,13 @@ class Image:
 
         resized_data = self.main_data[y_indices[:, None], x_indices[None, :], :]
 
-        self.main_data = resized_data
+        self.update_main(resized_data)
 
     def grey(self):
-        self.secondary_data = self.main_data
+        self.store_secondary()
 
         # Sum all the colors, then divide by the number of color channels
         colors_sum = np.sum(self.main_data, axis=2)
         colors_sum = colors_sum / 3
 
-        self.main_data[:,:,:] = np.stack((colors_sum, colors_sum, colors_sum), axis=2)
+        self.update_main(np.stack((colors_sum, colors_sum, colors_sum), axis=2))
