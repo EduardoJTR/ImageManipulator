@@ -137,7 +137,7 @@ class IM_Image:
 
 
     def reset_main_data(self):
-        self.main_data = self.secondary_data
+        self.update_main(self.secondary_data)
 
 
     def show(self):

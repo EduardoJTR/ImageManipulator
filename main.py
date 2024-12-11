@@ -4,9 +4,26 @@ from im_image import IM_Image
 
 img = IM_Image('')
 
+def in_quotes(command: str):
+    first_quote = -1
+    second_quote = -1
+    for i in range(len(command)):
+        if first_quote == -1 and command[i] == '\'':
+            first_quote = i
+        elif first_quote != -1 and command[i] == '\'':
+            second_quote = i
+    return command[first_quote + 1:second_quote]
+
+
 # Should split the arguments in a list
-def split_args(command):
-    return command
+def split_args(command: str):
+    if '\'' not in command:
+        return command.split(' ')
+    else:
+        splited = command.split(' ')
+        return [splited[0], in_quotes(command)]
+
+
 
 
 def handle_args(command: str):
@@ -24,7 +41,16 @@ def handle_args(command: str):
         display(img)
     elif args[0] == 'exit':
         return False
-
+    elif args[0] == 'crop' and len(args) == 5:
+        crop(args, img)
+    elif args[0] == 'flip' and len(args) == 2:
+        flip(args, img)
+    elif args[0] == 'rotate' and len(args) == 2:
+        rotate(args, img)
+    elif args[0] == 'resize' and len(args) == 3:
+        resize(args, img)
+    elif args[0] == 'grey':
+        grey(img)
     return True
 
 
